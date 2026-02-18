@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CongoDB Engine Template</title>
+    <link rel="stylesheet" href="decorate.css">
+    <link rel="stylesheet" href="libs/fontawesome/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-color, #f5f5f5);
+            color: var(--text-color, #333);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        header {
+            background: var(--primary, #2563eb);
+            color: white;
+            padding: 30px 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin-bottom: 5px;
+        }
+
+        header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+
+        .section {
+            background: var(--card-bg, white);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .section h2 {
+            margin-bottom: 15px;
+            color: var(--primary, #2563eb);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid var(--border-color, #ddd);
+            border-radius: 4px;
+            font-family: inherit;
+            font-size: 14px;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: var(--primary, #2563eb);
+            box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            background: var(--primary, #2563eb);
+            color: white;
+            cursor: pointer;
+            font-weight: 600;
+            transition: opacity 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+        }
+
+        .btn-secondary {
+            background: var(--border-color, #ddd);
+            color: var(--text-color, #333);
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 13px;
+        }
+
+        .output-box {
+            background: var(--bg-color, #f9fafb);
+            border: 1px solid var(--border-color, #ddd);
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            white-space: pre-wrap;
+            word-break: break-word;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .table th {
+            background: var(--primary, #2563eb);
+            color: white;
+            padding: 10px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .table td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border-color, #ddd);
+        }
+
+        .table tbody tr:hover {
+            background: var(--bg-color, #f9fafb);
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .alert-success {
+            background: #d1e7dd;
+            color: #0f5132;
+            border-left: 4px solid #198754;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #842029;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert-info {
+            background: #cfe2ff;
+            color: #084298;
+            border-left: 4px solid #0d6efd;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-active {
+            background: #d1e7dd;
+            color: #0f5132;
+        }
+
+        .status-inactive {
+            background: #f8d7da;
+            color: #842029;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .spinner {
+            border: 3px solid rgba(0, 0, 0, 0.1);
+            border-top: 3px solid var(--primary, #2563eb);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+
+<body data-theme="light">
+
+    <div class="container">
+
+        <!-- Header -->
+        <header>
+            <h1><i class="fas fa-database"></i> CongoDB Engine Template</h1>
+            <p>Complete application using ONLY engine.js methods</p>
+        </header>
+
+        <!-- Database Setup Section -->
+        <div class="section">
+            <h2><i class="fas fa-cogs"></i> Database Setup</h2>
+
+            <div class="form-group">
+                <label>Database Name:</label>
+                <input type="text" id="dbName" placeholder="Enter database name" value="demoApp">
+            </div>
+
+            <div class="grid">
+                <button class="btn" onclick="initializeDatabase()">
+                    <i class="fas fa-plus"></i> Initialize DB
+                </button>
+                <button class="btn" onclick="getStatus()">
+                    <i class="fas fa-info-circle"></i> Check Status
+                </button>
+            </div>
+
+            <div id="setupOutput" class="output-box"></div>
+        </div>
+
+        <!-- Create Table Section -->
+        <div class="section">
+            <h2><i class="fas fa-table"></i> Create Table</h2>
+
+            <div class="form-group">
+                <label>Table SQL:</label>
+                <textarea id="createTableSQL" rows="4" placeholder="CREATE TABLE users (id INT PRIMARY KEY AUTO_INCREMENT, ...)"></textarea>
+            </div>
+
+            <button class="btn" onclick="executeCreateTable()">
+                <i class="fas fa-plus"></i> Create Table
+            </button>
+
+            <div id="createTableOutput" class="output-box"></div>
+        </div>
+
+        <!-- Insert Data Section -->
+        <div class="section">
+            <h2><i class="fas fa-edit"></i> Insert Data</h2>
+
+            <div class="form-group">
+                <label>Insert SQL:</label>
+                <textarea id="insertSQL" rows="3" placeholder="INSERT INTO users (name, email) VALUES ('John', 'john@example.com')"></textarea>
+            </div>
+
+            <button class="btn" onclick="executeInsert()">
+                <i class="fas fa-save"></i> Insert
+            </button>
+
+            <div id="insertOutput" class="output-box"></div>
+        </div>
+
+        <!-- Query Section -->
+        <div class="section">
+            <h2><i class="fas fa-search"></i> Query Data</h2>
+
+            <div class="form-group">
+                <label>Select SQL:</label>
+                <textarea id="selectSQL" rows="3" placeholder="SELECT * FROM users"></textarea>
+            </div>
+
+            <button class="btn" onclick="executeSelect()">
+                <i class="fas fa-search"></i> Execute Query
+            </button>
+
+            <div id="selectOutput" class="output-box"></div>
+        </div>
+
+        <!-- Update/Delete Section -->
+        <div class="section">
+            <h2><i class="fas fa-pencil"></i> Update/Delete</h2>
+
+            <div class="form-group">
+                <label>SQL (UPDATE/DELETE/TRUNCATE):</label>
+                <textarea id="modifySQL" rows="3" placeholder="UPDATE users SET active = 1 WHERE id = 1"></textarea>
+            </div>
+
+            <div class="grid">
+                <button class="btn" onclick="executeModify()">
+                    <i class="fas fa-refresh"></i> Execute
+                </button>
+                <button class="btn btn-secondary" onclick="clearAllOutputs()">
+                    <i class="fas fa-trash"></i> Clear Outputs
+                </button>
+            </div>
+
+            <div id="modifyOutput" class="output-box"></div>
+        </div>
+
+        <!-- File Operations Section -->
+        <div class="section">
+            <h2><i class="fas fa-file"></i> File Operations</h2>
+
+            <div class="grid">
+                <button class="btn" onclick="exportTableToCSV()">
+                    <i class="fas fa-download"></i> Export to CSV
+                </button>
+                <button class="btn" onclick="exportToExcel()">
+                    <i class="fas fa-download"></i> Export to Excel
+                </button>
+            </div>
+
+            <div class="grid">
+                <button class="btn" onclick="backupAllDatabases()">
+                    <i class="fas fa-copy"></i> Backup All DB
+                </button>
+                <button class="btn" onclick="enableSync()">
+                    <i class="fas fa-sync"></i> Enable Sync
+                </button>
+            </div>
+
+            <div id="fileOutput" class="output-box"></div>
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="engine.js"></script>
+    <script>
+        // Global database instance
+        let db;
+
+        // Initialize Database
+        async function initializeDatabase() {
+            const output = document.getElementById('setupOutput');
+            try {
+                const dbName = document.getElementById('dbName').value || 'demoApp';
+                db = new CongoDB(dbName);
+                await db.initDB();
+
+                output.innerHTML = `✓ Database '${dbName}' initialized successfully\n\n`;
+                output.innerHTML += `Database instance ready for operations.`;
+
+                // Create default tables
+                await db.execute(`
+                    CREATE TABLE users (
+                        id INT PRIMARY KEY AUTO_INCREMENT,
+                        name TEXT NOT NULL,
+                        email TEXT UNIQUE,
+                        age INT,
+                        isActive BOOLEAN DEFAULT 1
+                    )
+                `);
+
+                output.innerHTML += `\n✓ Default 'users' table created`;
+
+            } catch (error) {
+                output.innerHTML = `✗ Error: ${error.message}`;
+                output.classList.add('alert-error');
+            }
+        }
+
+        // Get Status
+        async function getStatus() {
+            const output = document.getElementById('setupOutput');
+            try {
+                if (!db) throw new Error('Database not initialized');
+
+                const databases = await db.listDatabases();
+                const currentDB = await db.getDB();
+                const syncStatus = db.getSyncStatus();
+
+                output.innerHTML = `Database Status:\n`;
+                output.innerHTML += `• Current DB: ${db.dbName}\n`;
+                output.innerHTML += `• All Databases: ${databases.join(', ')}\n`;
+                output.innerHTML += `• Tables: ${Object.keys(currentDB.tables).join(', ')}\n`;
+                output.innerHTML += `• Sync Enabled: ${syncStatus.enabled}\n`;
+                output.innerHTML += `• Sync File: ${syncStatus.fileName || 'None'}\n`;
+                output.innerHTML += `• Last Modified: ${currentDB.metadata.lastModified}`;
+
+            } catch (error) {
+                output.innerHTML = `✗ Error: ${error.message}`;
+            }
+        }
+
+        // Execute Create Table
+        async function executeCreateTable() {
+            const output = document.getElementById('createTableOutput');
+            try {
+                if (!db) throw new Error('Database not initialized');
+
+                const sql = document.getElementById('createTableSQL').value;
+                if (!sql.trim()) throw new Error('Please enter SQL');
+
+                const result = await db.execute(sql);
+                output.innerHTML = `✓ ${result.message}\n\nExecution time: ${result.executionTime}`;
+
+            } catch (error) {
+                output.innerHTML = `✗ Error: ${error.message}`;
+            }
+        }
+
+        // Execute Insert
+        async function executeInsert() {
+            const output = document.getElementById('insertOutput');
+            try {
+                if (!db) throw new Error('Database not initialized');
+
+                const sql = document.getElementById('insertSQL').value;
+                if (!sql.trim()) throw new Error('Please enter SQL');
+
+                const result = await db.execute(sql);
+                output.innerHTML = `✓ ${result.message}\n`;
+                output.innerHTML += `• Rows inserted: ${result.result.length}\n`;
+                output.innerHTML += `• Result: ${JSON.stringify(result.result, null, 2)}\n`;
+                output.innerHTML += `• Synced: ${result.synced ? 'Yes' : 'No'}\n`;
+                output.innerHTML += `• Execution time: ${result.executionTime}`;
+
+            } catch (error) {
+                output.innerHTML = `✗ Error: ${error.message}`;
+            }
+        }
+
+        // Execute Select
+        async function executeSelect() {
+            const output = document.getElementById('selectOutput');
+            try {
+                if (!db) throw new Error('Database not initialized');
+
+                const sql = document.getElementById('selectSQL').value;
+                if (!sql.trim()) throw new Error('Please enter SQL');
+
+                const result = await db.execute(sql);
+                output.innerHTML = `✓ Query executed\n`;
+                output.innerHTML += `• Rows returned: ${result.result.length}\n`;
+                output.innerHTML += `• Execution time: ${result.executionTime}\n\n`;
+                output.innerHTML += `Results:\n${JSON.stringify(result.result, null, 2)}`;
+
+            } catch (error) {
+                output.innerHTML = `✗ Error: ${error.message}`;
+            }
+        }
+
+        // Execute Modify (Update/Delete)
+        async function executeModify() {
+            const output = document.getElementById('modifyOutput');
+            try {
+                if (!db) throw new Error('Database not initialized');
+
+                const sql = document.getElementById('modifySQL').value;
+                if (!sql.trim()) throw new Error('Please enter SQL');
+
+                const result = await db.execute(sql);
+                output.innerHTML = `✓ ${result.message}\n`;
+                
+                if (result.updatedRows !== undefined) {
+                    output.innerHTML += `• Updated rows: ${result.updatedRows}\n`;
+                }
+                if (result.deletedRows !== undefined) {
+                    output.innerHTML += `• Deleted rows: ${result.deletedRows}\n`;
+                }
+                
+                output.innerHTML += `• Synced: ${result.synced ? 'Yes' : 'No'}\n`;
+                output.innerHTML += `• Execution time: ${result.executionTime}`;
+
+            } catch (error) {
+                output.innerHTML = `✗ Error: ${error.message}`;
+            }
+        }
+
+        // Export Table to CSV
+        async function exportTableToCSV() {
+            const output = document.getElementById('fileOutput');
+            try {
+                if (!db) throw new Error('Database not initialized');
+
+                const csvResult = await db.getTableCSVContent('users');
+                output.innerHTML = `✓ CSV Export ready\n`;
+                output.innerHTML += `• File: ${csvResult.fileName}\n`;
+                output.innerHTML += `• Rows: ${csvResult.rowCount}\n\n`;
+                output.innerHTML += `Content (first 500 chars):\n${csvResult.content.substring(0, 500)}...`;
+
+            } catch (error) {
+                output.innerHTML = `✗ Error: ${error.message}`;
+            }
+        }
+
+        // Export to Excel
+        async function exportToExcel() {
+            const output = document.getElementById('fileOutput');
+            try {
+                if (!db) throw new Error('Database not initialized');
+
+                output.innerHTML = `⏳ Generating Excel file...`;
+                const result = await db.getDatabaseExcelBlob(db.dbName, (msg) => {
+                    output.innerHTML = `⏳ ${msg}`;
+                });
+
+                output.innerHTML = `✓ Excel export complete\n`;
+                output.innerHTML += `• File: ${result.fileName}\n`;
+                output.innerHTML += `• Databases: ${result.databaseCount}\n`;
+                output.innerHTML += `• Tables: ${result.tableCount}\n`;
+                output.innerHTML += `• Size: ${(result.blob.size / 1024).toFixed(2)} KB`;
+
+            } catch (error) {
+                output.innerHTML = `✗ Error: ${error.message}`;
+            }
+        }
+
+        // Backup All Databases
+        async function backupAllDatabases() {
+            const output = document.getElementById('fileOutput');
+            try {
+                const result = await db.backupAllDatabasesToBlob();
+                output.innerHTML = `✓ Backup created\n`;
+                output.innerHTML += `• File: ${result.fileName}\n`;
+                output.innerHTML += `• Databases: ${result.databaseCount}\n`;
+                output.innerHTML += `• Tables: ${result.tableCount}\n`;
+                output.innerHTML += `• Size: ${(result.blob.size / 1024).toFixed(2)} KB`;
+
+            } catch (error) {
+                output.innerHTML = `✗ Error: ${error.message}`;
+            }
+        }
+
+        // Enable File Sync
+        async function enableSync() {
+            const output = document.getElementById('fileOutput');
+            try {
+                if (!window.showSaveFilePicker) {
+                    throw new Error('File System Access API not supported');
+                }
+
+                output.innerHTML = `⏳ Opening file picker...`;
+
+                const fileHandle = await window.showSaveFilePicker({
+                    suggestedName: `${db.dbName}_sync.json`,
+                    types: [{ description: 'JSON', accept: { 'application/json': ['.json'] } }]
+                });
+
+                output.innerHTML = `⏳ Enabling sync...`;
+                const result = await db.enableRealTimeSync(fileHandle);
+
+                output.innerHTML = `✓ ${result.message}\n`;
+                output.innerHTML += `• File: ${result.fileName}\n`;
+                output.innerHTML += `• Mode: ${result.mode}\n`;
+                output.innerHTML += `• Encrypted: ${result.encryption ? 'Yes' : 'No'}`;
+
+            } catch (error) {
+                output.innerHTML = `✗ Error: ${error.message}`;
+            }
+        }
+
+        // Clear All Outputs
+        function clearAllOutputs() {
+            document.querySelectorAll('.output-box').forEach(box => {
+                box.innerHTML = '';
+            });
+        }
+
+        // Initialize on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('CongoDB Engine Template Ready');
+            console.log('Documentation: ENGINE_API_REFERENCE.md');
+        });
+    </script>
+
+</body>
+
+</html>
